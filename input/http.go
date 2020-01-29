@@ -10,7 +10,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/clickstreampro/shipper/common"
+	"github.com/click-stream/shipper/common"
 	"github.com/devopsext/utils"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"

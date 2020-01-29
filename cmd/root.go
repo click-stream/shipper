@@ -10,9 +10,9 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/clickstreampro/shipper/common"
-	"github.com/clickstreampro/shipper/input"
-	"github.com/clickstreampro/shipper/processor"
+	"github.com/click-stream/shipper/common"
+	"github.com/click-stream/shipper/input"
+	"github.com/click-stream/shipper/processor"
 	"github.com/devopsext/utils"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
