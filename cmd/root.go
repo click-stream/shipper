@@ -86,10 +86,10 @@ var clickhouseProcessorOptions = processor.ClickhouseProcessorOptions{
 	ClickhouseCacheLifeSeconds:  env.Get("SHIPPER_CLICKHOUSE_CACHE_LIFE_SECONDS", 0).(int),
 	ClickhouseCacheCleanSeconds: env.Get("SHIPPER_CLICKHOUSE_CACHE_CLEAN_SECONDS", 0).(int),
 	ClickhouseCacheMaxSize:      env.Get("SHIPPER_CLICKHOUSE_CACHE_MAX_SIZE", 0).(int),
+	ClickhouseRefreshInterval:   env.Get("SHIPPER_CLICKHOUSE_REFRESH_INTERVAL", 60).(int),
 }
 
 func startMetrics(wg *sync.WaitGroup) {
-
 	wg.Add(1)
 
 	go func(wg *sync.WaitGroup) {
@@ -195,6 +195,22 @@ func Execute() {
 
 	flags.BoolVar(&graphqlOptions.GraphqlPretty, "graphql-pretty", graphqlOptions.GraphqlPretty, "Graphql pretty response format")
 	flags.StringVar(&graphqlOptions.GraphqlMode, "graphql-mode", graphqlOptions.GraphqlMode, "Graphql mode: GraphiQL, Playground")
+
+	flags.StringVar(&clickhouseProcessorOptions.ClickhouseHost, "clickhouse-host", clickhouseProcessorOptions.ClickhouseHost, "Clickhouse host")
+	flags.IntVar(&clickhouseProcessorOptions.ClickhousePort, "clickhouse-port", clickhouseProcessorOptions.ClickhousePort, "Clickhouse port")
+	flags.StringVar(&clickhouseProcessorOptions.ClickhouseUser, "clickhouse-user", clickhouseProcessorOptions.ClickhouseUser, "Clickhouse user")
+	flags.StringVar(&clickhouseProcessorOptions.ClickhousePassword, "clickhouse-password", clickhouseProcessorOptions.ClickhousePassword, "Clickhouse password")
+	flags.BoolVar(&clickhouseProcessorOptions.ClickhouseDebug, "clickhouse-debug", clickhouseProcessorOptions.ClickhouseDebug, "Clickhouse debug")
+	flags.StringVar(&clickhouseProcessorOptions.ClickhouseURLPattern, "clickhouse-url-pattern", clickhouseProcessorOptions.ClickhouseURLPattern, "Clickhouse url pattern")
+	flags.IntVar(&clickhouseProcessorOptions.ClickhouseReadTimeout, "clickhouse-read-timeout", clickhouseProcessorOptions.ClickhouseReadTimeout, "Clickhouse read timeout")
+	flags.StringVar(&clickhouseProcessorOptions.ClickhouseDatabasePattern, "clickhouse-database-pattern", clickhouseProcessorOptions.ClickhouseDatabasePattern, "Clickhouse database pattern")
+	flags.StringVar(&clickhouseProcessorOptions.ClickhouseTablePattern, "clickhouse-table-pattern", clickhouseProcessorOptions.ClickhouseTablePattern, "Clickhouse table pattern")
+	flags.IntVar(&clickhouseProcessorOptions.ClickhouseQueryLimit, "clickhouse-query-limit", clickhouseProcessorOptions.ClickhouseQueryLimit, "Clickhouse query limit")
+	flags.StringVar(&clickhouseProcessorOptions.ClickhouseIdentFormat, "clickhouse-ident-format", clickhouseProcessorOptions.ClickhouseIdentFormat, "Clickhouse ident format")
+	flags.IntVar(&clickhouseProcessorOptions.ClickhouseCacheLifeSeconds, "clickhouse-cache-life-seconds", clickhouseProcessorOptions.ClickhouseCacheLifeSeconds, "Clickhouse cache life seconds")
+	flags.IntVar(&clickhouseProcessorOptions.ClickhouseCacheCleanSeconds, "clickhouse-cache-clean-seconds", clickhouseProcessorOptions.ClickhouseCacheCleanSeconds, "Clickhouse cache clean seconds")
+	flags.IntVar(&clickhouseProcessorOptions.ClickhouseCacheMaxSize, "clickhouse-cache-max-size", clickhouseProcessorOptions.ClickhouseCacheMaxSize, "Clickhouse cache max size in MB")
+	flags.IntVar(&clickhouseProcessorOptions.ClickhouseRefreshInterval, "clickhouse-refresh-interval", clickhouseProcessorOptions.ClickhouseRefreshInterval, "Clickhouse refresh interval in seconds")
 
 	interceptSyscall()
 

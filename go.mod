@@ -11,6 +11,8 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/graphql-go/graphql v0.7.8
 	github.com/graphql-go/handler v0.2.3
+
+	github.com/jasonlvhit/gocron v0.0.0-20191228163020-98b59b546dee
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
@@ -24,4 +26,7 @@ require (
 	golang.org/x/sys v0.0.0-20200124204421-9fbb57f87de9 // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	gopkg.in/square/go-jose.v2 v2.4.1 // indirect
+
 )
+
+replace github.com/jasonlvhit/gocron => github.com/click-stream/gocron v1.0.0
