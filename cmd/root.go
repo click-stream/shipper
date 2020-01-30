@@ -136,6 +136,11 @@ func Execute() {
 			log.CallInfo = true
 			log.Init(rootOpts.LogFormat, rootOpts.LogLevel, rootOpts.LogTemplate)
 
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+
+			log.Info("Booting...")
+
 			var wg sync.WaitGroup
 
 			startMetrics(&wg)
@@ -159,10 +164,6 @@ func Execute() {
 			inputs.Start(&wg)
 
 			wg.Wait()
-		},
-		Run: func(cmd *cobra.Command, args []string) {
-
-			log.Info("Booting...")
 		},
 	}
 
@@ -221,8 +222,6 @@ func Execute() {
 			fmt.Println(VERSION)
 		},
 	})
-
-	//rootCmd.AddCommand(GetWebsiteCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Error(err)
