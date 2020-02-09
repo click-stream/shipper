@@ -35,6 +35,7 @@ go build
 
 ## GraphQL to Clickhouse
 
+GraphQL request:
 ```graphql
 {
   settings(limit:1,
@@ -53,13 +54,41 @@ go build
   }
 }
 ```
+GraphQL response:
+```graphql
+{
+  "data": {
+    "settings": [
+      {
+        "name": "allow_ddl",
+        "value": "1"
+      }
+    ],
+    "tables": [
+      {
+        "database": "system",
+        "engine": "SystemSettings",
+        "name": "settings"
+      },
+      {
+        "database": "system",
+        "engine": "SystemMergeTreeSettings",
+        "name": "merge_tree_settings"
+      }
+    ]
+  }
+}
+```
+
+<img src="example.png" align=center>
+
+
+Clickhouse queries based on GraphQL request:
 
 ```sql
 SELECT `name`, `value` FROM `system`.`settings` WHERE `value` != '0' ORDER BY `name` ASC LIMIT 1 OFFSET 0;
 SELECT `database`, `engine`, `name` FROM `system`.`tables` WHERE match(`name`,'.*settings.*') = 1 ORDER BY `name` DESC LIMIT 2 OFFSET 0;
 ```
-
-<img src="example.png" align=center>
 
 ## Usage
 
