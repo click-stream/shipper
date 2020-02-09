@@ -13,8 +13,8 @@ It supports conitions, limits and offsets. All requests can be cached and authen
 - Provide sorting (asc, desc), record limits and offsets 
 - Support conditions like: Match, EQ, NE, LT, LE, GT, GE 
 - Include GraphQL Playground, OIDC, Prometheus metrics
-- Include reponse cache
-- Automatic schemas refresh 
+- Refresh schemas automatically
+- Provide response cache using size or time  
 
 ## Build
 
@@ -35,7 +35,7 @@ go build
 
 ## GraphQL to Clickhouse
 
-```json
+```graphql
 {
   settings(limit:1,
            valueNE: "0",
