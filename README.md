@@ -2,7 +2,7 @@
 
 Http service which provides Clickhouse data via GraphQL interface.
 
-It supports conitions, limits and offsets. All requests can be cached and authentificated based on OpenID Connect.
+It supports conditions, limits and offsets. All requests can be cached and authentificated based on OpenID Connect.
 
 [![GoDoc](https://godoc.org/github.com/click-stream/shipper?status.svg)](https://godoc.org/github.com/click-stream/shipper)
 [![build status](https://img.shields.io/travis/click-stream/shipper/master.svg?style=flat-square)](https://travis-ci.org/click-stream/shipper)
