@@ -45,24 +45,24 @@ var rootOpts = rootOptions{
 
 var httpInputOptions = input.HttpInputOptions{
 
-	HttpURL:    env.Get("SHIPPER_HTTP_URL", "/shipper").(string),
-	HttpListen: env.Get("SHIPPER_HTTP_LISTEN", ":80").(string),
-	HttpTls:    env.Get("SHIPPER_HTTP_TLS", false).(bool),
-	HttpCert:   env.Get("SHIPPER_HTTP_CERT", "").(string),
-	HttpKey:    env.Get("SHIPPER_HTTP_KEY", "").(string),
-	HttpChain:  env.Get("SHIPPER_HTTP_CHAIN", "").(string),
+	URL:    env.Get("SHIPPER_HTTP_URL", "/shipper").(string),
+	Listen: env.Get("SHIPPER_HTTP_LISTEN", ":80").(string),
+	Tls:    env.Get("SHIPPER_HTTP_TLS", false).(bool),
+	Cert:   env.Get("SHIPPER_HTTP_CERT", "").(string),
+	Key:    env.Get("SHIPPER_HTTP_KEY", "").(string),
+	Chain:  env.Get("SHIPPER_HTTP_CHAIN", "").(string),
 
-	HttpExternalHost: env.Get("SHIPPER_HTTP_EXTERNAL_HOST", "").(string),
+	ExternalHost: env.Get("SHIPPER_HTTP_EXTERNAL_HOST", "").(string),
 
-	HttpOidcEnabled:      env.Get("SHIPPER_HTTP_OIDC_ENABLED", false).(bool),
-	HttpOidcClientId:     env.Get("SHIPPER_HTTP_OIDC_CLIENT_ID", "").(string),
-	HttpOidcClientSecret: env.Get("SHIPPER_HTTP_OIDC_CLIENT_SECRET", "").(string),
-	HttpOidcConfigURL:    env.Get("SHIPPER_HTTP_OIDC_CONFIG_URL", "").(string),
-	HttpOidcLoginURL:     env.Get("SHIPPER_HTTP_OIDC_LOGIN_URL", "/login").(string),
-	HttpOidcLogoutURL:    env.Get("SHIPPER_HTTP_OIDC_LOGOUT_URL", "/logout").(string),
-	HttpOidcCallbackURL:  env.Get("SHIPPER_HTTP_OIDC_CALLBACK_URL", "/callback").(string),
-	HttpOidcDefaultURL:   env.Get("SHIPPER_HTTP_OIDC_DEFAULT_URL", "").(string),
-	HttpOidcScopes:       env.Get("SHIPPER_HTTP_OIDC_SCOPES", "profile, email, roles, groups").(string),
+	OidcEnabled:      env.Get("SHIPPER_HTTP_OIDC_ENABLED", false).(bool),
+	OidcClientId:     env.Get("SHIPPER_HTTP_OIDC_CLIENT_ID", "").(string),
+	OidcClientSecret: env.Get("SHIPPER_HTTP_OIDC_CLIENT_SECRET", "").(string),
+	OidcConfigURL:    env.Get("SHIPPER_HTTP_OIDC_CONFIG_URL", "").(string),
+	OidcLoginURL:     env.Get("SHIPPER_HTTP_OIDC_LOGIN_URL", "/login").(string),
+	OidcLogoutURL:    env.Get("SHIPPER_HTTP_OIDC_LOGOUT_URL", "/logout").(string),
+	OidcCallbackURL:  env.Get("SHIPPER_HTTP_OIDC_CALLBACK_URL", "/callback").(string),
+	OidcDefaultURL:   env.Get("SHIPPER_HTTP_OIDC_DEFAULT_URL", "").(string),
+	OidcScopes:       env.Get("SHIPPER_HTTP_OIDC_SCOPES", "profile, email, roles, groups").(string),
 }
 
 var graphqlOptions = common.GraphqlOptions{
@@ -72,21 +72,21 @@ var graphqlOptions = common.GraphqlOptions{
 
 var clickhouseProcessorOptions = processor.ClickhouseProcessorOptions{
 
-	ClickhouseHost:              env.Get("SHIPPER_CLICKHOUSE_HOST", "").(string),
-	ClickhousePort:              env.Get("SHIPPER_CLICKHOUSE_PORT", 9000).(int),
-	ClickhouseUser:              env.Get("SHIPPER_CLICKHOUSE_USER", "default").(string),
-	ClickhousePassword:          env.Get("SHIPPER_CLICKHOUSE_PASSWORD", "").(string),
-	ClickhouseDebug:             env.Get("SHIPPER_CLICKHOUSE_DEBUG", false).(bool),
-	ClickhouseURLPattern:        env.Get("SHIPPER_CLICKHOUSE_URL_PATTERN", "/{database}").(string),
-	ClickhouseReadTimeout:       env.Get("SHIPPER_CLICKHOUSE_READ_TIMEOUT", 10).(int),
-	ClickhouseDatabasePattern:   env.Get("SHIPPER_CLICKHOUSE_DATABASE_PATTERN", ".*").(string),
-	ClickhouseTablePattern:      env.Get("SHIPPER_CLICKHOUSE_TABLE_PATTERN", ".*").(string),
-	ClickhouseQueryLimit:        env.Get("SHIPPER_CLICKHOUSE_QUERY_LIMIT", 1000).(int),
-	ClickhouseIdentFormat:       env.Get("SHIPPER_CLICKHOUSE_IDENT_FORMAT", "`%s`").(string),
-	ClickhouseCacheLifeSeconds:  env.Get("SHIPPER_CLICKHOUSE_CACHE_LIFE_SECONDS", 0).(int),
-	ClickhouseCacheCleanSeconds: env.Get("SHIPPER_CLICKHOUSE_CACHE_CLEAN_SECONDS", 0).(int),
-	ClickhouseCacheMaxSize:      env.Get("SHIPPER_CLICKHOUSE_CACHE_MAX_SIZE", 0).(int),
-	ClickhouseRefreshInterval:   env.Get("SHIPPER_CLICKHOUSE_REFRESH_INTERVAL", 60).(int),
+	Host:              env.Get("SHIPPER_CLICKHOUSE_HOST", "").(string),
+	Port:              env.Get("SHIPPER_CLICKHOUSE_PORT", 9000).(int),
+	User:              env.Get("SHIPPER_CLICKHOUSE_USER", "default").(string),
+	Password:          env.Get("SHIPPER_CLICKHOUSE_PASSWORD", "").(string),
+	Debug:             env.Get("SHIPPER_CLICKHOUSE_DEBUG", false).(bool),
+	URLPattern:        env.Get("SHIPPER_CLICKHOUSE_URL_PATTERN", "/{database}").(string),
+	ReadTimeout:       env.Get("SHIPPER_CLICKHOUSE_READ_TIMEOUT", 10).(int),
+	DatabasePattern:   env.Get("SHIPPER_CLICKHOUSE_DATABASE_PATTERN", ".*").(string),
+	TablePattern:      env.Get("SHIPPER_CLICKHOUSE_TABLE_PATTERN", ".*").(string),
+	QueryLimit:        env.Get("SHIPPER_CLICKHOUSE_QUERY_LIMIT", 1000).(int),
+	IdentFormat:       env.Get("SHIPPER_CLICKHOUSE_IDENT_FORMAT", "`%s`").(string),
+	CacheLifeSeconds:  env.Get("SHIPPER_CLICKHOUSE_CACHE_LIFE_SECONDS", 0).(int),
+	CacheCleanSeconds: env.Get("SHIPPER_CLICKHOUSE_CACHE_CLEAN_SECONDS", 0).(int),
+	CacheMaxSize:      env.Get("SHIPPER_CLICKHOUSE_CACHE_MAX_SIZE", 0).(int),
+	RefreshInterval:   env.Get("SHIPPER_CLICKHOUSE_REFRESH_INTERVAL", 60).(int),
 }
 
 func startMetrics(wg *sync.WaitGroup) {
@@ -176,42 +176,42 @@ func Execute() {
 	flags.StringVar(&rootOpts.PrometheusURL, "prometheus-url", rootOpts.PrometheusURL, "Prometheus endpoint url")
 	flags.StringVar(&rootOpts.PrometheusListen, "prometheus-listen", rootOpts.PrometheusListen, "Prometheus listen")
 
-	flags.StringVar(&httpInputOptions.HttpURL, "http-url", httpInputOptions.HttpURL, "Http url")
-	flags.StringVar(&httpInputOptions.HttpListen, "http-listen", httpInputOptions.HttpListen, "Http listen")
-	flags.BoolVar(&httpInputOptions.HttpTls, "http-tls", httpInputOptions.HttpTls, "Http TLS")
-	flags.StringVar(&httpInputOptions.HttpCert, "http-cert", httpInputOptions.HttpCert, "Http cert file or content")
-	flags.StringVar(&httpInputOptions.HttpKey, "http-key", httpInputOptions.HttpKey, "Http key file or content")
-	flags.StringVar(&httpInputOptions.HttpChain, "http-chain", httpInputOptions.HttpChain, "Http CA chain file or content")
-	flags.StringVar(&httpInputOptions.HttpExternalHost, "http-external-host", httpInputOptions.HttpExternalHost, "Http external host")
+	flags.StringVar(&httpInputOptions.URL, "http-url", httpInputOptions.URL, "Http url")
+	flags.StringVar(&httpInputOptions.Listen, "http-listen", httpInputOptions.Listen, "Http listen")
+	flags.BoolVar(&httpInputOptions.Tls, "http-tls", httpInputOptions.Tls, "Http TLS")
+	flags.StringVar(&httpInputOptions.Cert, "http-cert", httpInputOptions.Cert, "Http cert file or content")
+	flags.StringVar(&httpInputOptions.Key, "http-key", httpInputOptions.Key, "Http key file or content")
+	flags.StringVar(&httpInputOptions.Chain, "http-chain", httpInputOptions.Chain, "Http CA chain file or content")
+	flags.StringVar(&httpInputOptions.ExternalHost, "http-external-host", httpInputOptions.ExternalHost, "Http external host")
 
-	flags.BoolVar(&httpInputOptions.HttpOidcEnabled, "http-oidc-enabled", httpInputOptions.HttpOidcEnabled, "Http oidc enabled")
-	flags.StringVar(&httpInputOptions.HttpOidcClientId, "http-oidc-client-id", httpInputOptions.HttpOidcClientId, "Http oidc client id")
-	flags.StringVar(&httpInputOptions.HttpOidcClientSecret, "http-oidc-client-secret", httpInputOptions.HttpOidcClientSecret, "Http oidc client secret")
-	flags.StringVar(&httpInputOptions.HttpOidcConfigURL, "http-oidc-config-url", httpInputOptions.HttpOidcConfigURL, "Http oidc config url")
-	flags.StringVar(&httpInputOptions.HttpOidcLoginURL, "http-oidc-login-url", httpInputOptions.HttpOidcLoginURL, "Http oidc login url")
-	flags.StringVar(&httpInputOptions.HttpOidcLogoutURL, "http-oidc-logout-url", httpInputOptions.HttpOidcLogoutURL, "Http oidc logout url")
-	flags.StringVar(&httpInputOptions.HttpOidcCallbackURL, "http-oidc-callback-url", httpInputOptions.HttpOidcCallbackURL, "Http oidc callback url")
-	flags.StringVar(&httpInputOptions.HttpOidcDefaultURL, "http-oidc-default-url", httpInputOptions.HttpOidcDefaultURL, "Http oidc default url")
-	flags.StringVar(&httpInputOptions.HttpOidcScopes, "http-oidc-scopes-url", httpInputOptions.HttpOidcScopes, "Http oidc scopes")
+	flags.BoolVar(&httpInputOptions.OidcEnabled, "http-oidc-enabled", httpInputOptions.OidcEnabled, "Http oidc enabled")
+	flags.StringVar(&httpInputOptions.OidcClientId, "http-oidc-client-id", httpInputOptions.OidcClientId, "Http oidc client id")
+	flags.StringVar(&httpInputOptions.OidcClientSecret, "http-oidc-client-secret", httpInputOptions.OidcClientSecret, "Http oidc client secret")
+	flags.StringVar(&httpInputOptions.OidcConfigURL, "http-oidc-config-url", httpInputOptions.OidcConfigURL, "Http oidc config url")
+	flags.StringVar(&httpInputOptions.OidcLoginURL, "http-oidc-login-url", httpInputOptions.OidcLoginURL, "Http oidc login url")
+	flags.StringVar(&httpInputOptions.OidcLogoutURL, "http-oidc-logout-url", httpInputOptions.OidcLogoutURL, "Http oidc logout url")
+	flags.StringVar(&httpInputOptions.OidcCallbackURL, "http-oidc-callback-url", httpInputOptions.OidcCallbackURL, "Http oidc callback url")
+	flags.StringVar(&httpInputOptions.OidcDefaultURL, "http-oidc-default-url", httpInputOptions.OidcDefaultURL, "Http oidc default url")
+	flags.StringVar(&httpInputOptions.OidcScopes, "http-oidc-scopes-url", httpInputOptions.OidcScopes, "Http oidc scopes")
 
 	flags.BoolVar(&graphqlOptions.GraphqlPretty, "graphql-pretty", graphqlOptions.GraphqlPretty, "Graphql pretty response format")
 	flags.StringVar(&graphqlOptions.GraphqlMode, "graphql-mode", graphqlOptions.GraphqlMode, "Graphql mode: GraphiQL, Playground")
 
-	flags.StringVar(&clickhouseProcessorOptions.ClickhouseHost, "clickhouse-host", clickhouseProcessorOptions.ClickhouseHost, "Clickhouse host")
-	flags.IntVar(&clickhouseProcessorOptions.ClickhousePort, "clickhouse-port", clickhouseProcessorOptions.ClickhousePort, "Clickhouse port")
-	flags.StringVar(&clickhouseProcessorOptions.ClickhouseUser, "clickhouse-user", clickhouseProcessorOptions.ClickhouseUser, "Clickhouse user")
-	flags.StringVar(&clickhouseProcessorOptions.ClickhousePassword, "clickhouse-password", clickhouseProcessorOptions.ClickhousePassword, "Clickhouse password")
-	flags.BoolVar(&clickhouseProcessorOptions.ClickhouseDebug, "clickhouse-debug", clickhouseProcessorOptions.ClickhouseDebug, "Clickhouse debug")
-	flags.StringVar(&clickhouseProcessorOptions.ClickhouseURLPattern, "clickhouse-url-pattern", clickhouseProcessorOptions.ClickhouseURLPattern, "Clickhouse url pattern")
-	flags.IntVar(&clickhouseProcessorOptions.ClickhouseReadTimeout, "clickhouse-read-timeout", clickhouseProcessorOptions.ClickhouseReadTimeout, "Clickhouse read timeout")
-	flags.StringVar(&clickhouseProcessorOptions.ClickhouseDatabasePattern, "clickhouse-database-pattern", clickhouseProcessorOptions.ClickhouseDatabasePattern, "Clickhouse database pattern")
-	flags.StringVar(&clickhouseProcessorOptions.ClickhouseTablePattern, "clickhouse-table-pattern", clickhouseProcessorOptions.ClickhouseTablePattern, "Clickhouse table pattern")
-	flags.IntVar(&clickhouseProcessorOptions.ClickhouseQueryLimit, "clickhouse-query-limit", clickhouseProcessorOptions.ClickhouseQueryLimit, "Clickhouse query limit")
-	flags.StringVar(&clickhouseProcessorOptions.ClickhouseIdentFormat, "clickhouse-ident-format", clickhouseProcessorOptions.ClickhouseIdentFormat, "Clickhouse ident format")
-	flags.IntVar(&clickhouseProcessorOptions.ClickhouseCacheLifeSeconds, "clickhouse-cache-life-seconds", clickhouseProcessorOptions.ClickhouseCacheLifeSeconds, "Clickhouse cache life seconds")
-	flags.IntVar(&clickhouseProcessorOptions.ClickhouseCacheCleanSeconds, "clickhouse-cache-clean-seconds", clickhouseProcessorOptions.ClickhouseCacheCleanSeconds, "Clickhouse cache clean seconds")
-	flags.IntVar(&clickhouseProcessorOptions.ClickhouseCacheMaxSize, "clickhouse-cache-max-size", clickhouseProcessorOptions.ClickhouseCacheMaxSize, "Clickhouse cache max size in MB")
-	flags.IntVar(&clickhouseProcessorOptions.ClickhouseRefreshInterval, "clickhouse-refresh-interval", clickhouseProcessorOptions.ClickhouseRefreshInterval, "Clickhouse refresh interval in seconds")
+	flags.StringVar(&clickhouseProcessorOptions.Host, "clickhouse-host", clickhouseProcessorOptions.Host, "Clickhouse host")
+	flags.IntVar(&clickhouseProcessorOptions.Port, "clickhouse-port", clickhouseProcessorOptions.Port, "Clickhouse port")
+	flags.StringVar(&clickhouseProcessorOptions.User, "clickhouse-user", clickhouseProcessorOptions.User, "Clickhouse user")
+	flags.StringVar(&clickhouseProcessorOptions.Password, "clickhouse-password", clickhouseProcessorOptions.Password, "Clickhouse password")
+	flags.BoolVar(&clickhouseProcessorOptions.Debug, "clickhouse-debug", clickhouseProcessorOptions.Debug, "Clickhouse debug")
+	flags.StringVar(&clickhouseProcessorOptions.URLPattern, "clickhouse-url-pattern", clickhouseProcessorOptions.URLPattern, "Clickhouse url pattern")
+	flags.IntVar(&clickhouseProcessorOptions.ReadTimeout, "clickhouse-read-timeout", clickhouseProcessorOptions.ReadTimeout, "Clickhouse read timeout")
+	flags.StringVar(&clickhouseProcessorOptions.DatabasePattern, "clickhouse-database-pattern", clickhouseProcessorOptions.DatabasePattern, "Clickhouse database pattern")
+	flags.StringVar(&clickhouseProcessorOptions.TablePattern, "clickhouse-table-pattern", clickhouseProcessorOptions.TablePattern, "Clickhouse table pattern")
+	flags.IntVar(&clickhouseProcessorOptions.QueryLimit, "clickhouse-query-limit", clickhouseProcessorOptions.QueryLimit, "Clickhouse query limit")
+	flags.StringVar(&clickhouseProcessorOptions.IdentFormat, "clickhouse-ident-format", clickhouseProcessorOptions.IdentFormat, "Clickhouse ident format")
+	flags.IntVar(&clickhouseProcessorOptions.CacheLifeSeconds, "clickhouse-cache-life-seconds", clickhouseProcessorOptions.CacheLifeSeconds, "Clickhouse cache life seconds")
+	flags.IntVar(&clickhouseProcessorOptions.CacheCleanSeconds, "clickhouse-cache-clean-seconds", clickhouseProcessorOptions.CacheCleanSeconds, "Clickhouse cache clean seconds")
+	flags.IntVar(&clickhouseProcessorOptions.CacheMaxSize, "clickhouse-cache-max-size", clickhouseProcessorOptions.CacheMaxSize, "Clickhouse cache max size in MB")
+	flags.IntVar(&clickhouseProcessorOptions.RefreshInterval, "clickhouse-refresh-interval", clickhouseProcessorOptions.RefreshInterval, "Clickhouse refresh interval in seconds")
 
 	interceptSyscall()
 
