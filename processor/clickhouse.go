@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
+	"github.com/click-stream/shipper/input"
 	"sync"
 
 	"net/http"
@@ -76,7 +77,7 @@ func (cp *ClickhouseProcessor) HandleHttpRequest(w http.ResponseWriter, r *http.
 		http.Error(w, "Not found", http.StatusNotFound)
 		return
 	}
-
+	input.SetupCors(w, r)
 	// fix default Playground
 	if cp.playground {
 		acceptHeader := r.Header.Get("Accept")
