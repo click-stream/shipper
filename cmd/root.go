@@ -47,6 +47,7 @@ var httpInputOptions = input.HttpInputOptions{
 
 	HttpURL:    env.Get("SHIPPER_HTTP_URL", "/shipper").(string),
 	HttpListen: env.Get("SHIPPER_HTTP_LISTEN", ":80").(string),
+	HttpCors:   env.Get("SHIPPER_HTTP_CORS", false).(bool),
 	HttpTls:    env.Get("SHIPPER_HTTP_TLS", false).(bool),
 	HttpCert:   env.Get("SHIPPER_HTTP_CERT", "").(string),
 	HttpKey:    env.Get("SHIPPER_HTTP_KEY", "").(string),
@@ -186,6 +187,7 @@ func Execute() {
 
 	flags.BoolVar(&httpInputOptions.HttpOidcEnabled, "http-oidc-enabled", httpInputOptions.HttpOidcEnabled, "Http oidc enabled")
 	flags.StringVar(&httpInputOptions.HttpOidcClientId, "http-oidc-client-id", httpInputOptions.HttpOidcClientId, "Http oidc client id")
+	flags.BoolVar(&httpInputOptions.HttpCors, "http-cors", httpInputOptions.HttpCors, "Http CORS true/false")
 	flags.StringVar(&httpInputOptions.HttpOidcClientSecret, "http-oidc-client-secret", httpInputOptions.HttpOidcClientSecret, "Http oidc client secret")
 	flags.StringVar(&httpInputOptions.HttpOidcConfigURL, "http-oidc-config-url", httpInputOptions.HttpOidcConfigURL, "Http oidc config url")
 	flags.StringVar(&httpInputOptions.HttpOidcLoginURL, "http-oidc-login-url", httpInputOptions.HttpOidcLoginURL, "Http oidc login url")

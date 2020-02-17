@@ -122,13 +122,6 @@ func (o *HttpOidc) oidcCheck(callback func(http.ResponseWriter, *http.Request)) 
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		SetupCors(w,r)
-		if r.Method == "OPTIONS" {
-
-			w.WriteHeader(200)
-			return
-		}
-
 		accessToken := o.getAccessToken(r)
 		if utils.IsEmpty(accessToken) {
 
