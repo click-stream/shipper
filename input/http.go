@@ -22,23 +22,23 @@ var httpInputRequests = prometheus.NewCounterVec(prometheus.CounterOpts{
 }, []string{"shipper_http_input_url"})
 
 type HttpInputOptions struct {
-	HttpURL              string
-	HttpListen           string
-	HttpCors             bool
-	HttpTls              bool
-	HttpCert             string
-	HttpKey              string
-	HttpChain            string
-	HttpExternalHost     string
-	HttpOidcEnabled      bool
-	HttpOidcClientId     string
-	HttpOidcClientSecret string
-	HttpOidcConfigURL    string
-	HttpOidcLoginURL     string
-	HttpOidcLogoutURL    string
-	HttpOidcCallbackURL  string
-	HttpOidcDefaultURL   string
-	HttpOidcScopes       string
+	URL              string
+	Listen           string
+	Cors             bool
+	Tls              bool
+	Cert             string
+	Key              string
+	Chain            string
+	ExternalHost     string
+	OidcEnabled      bool
+	OidcClientId     string
+	OidcClientSecret string
+	OidcConfigURL    string
+	OidcLoginURL     string
+	OidcLogoutURL    string
+	OidcCallbackURL  string
+	OidcDefaultURL   string
+	OidcScopes       string
 }
 
 type HttpInput struct {
@@ -47,7 +47,7 @@ type HttpInput struct {
 }
 
 func (h *HttpInput) SetupCors(w http.ResponseWriter, r *http.Request) {
-	if h.options.HttpCors {
+	if h.options.Cors {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
@@ -69,7 +69,7 @@ func (h *HttpInput) counterFunc(callback func(http.ResponseWriter, *http.Request
 
 func (h *HttpInput) getUrl(s string) string {
 
-	return fmt.Sprintf("%s%s", h.options.HttpURL, s)
+	return fmt.Sprintf("%s%s", h.options.URL, s)
 }
 
 func (h *HttpInput) Start(wg *sync.WaitGroup) {
@@ -85,30 +85,30 @@ func (h *HttpInput) Start(wg *sync.WaitGroup) {
 		var caPool *x509.CertPool
 		var certificates []tls.Certificate
 
-		if h.options.HttpTls {
+		if h.options.Tls {
 
 			// load certififcate
 			var cert []byte
-			if _, err := os.Stat(h.options.HttpCert); err == nil {
+			if _, err := os.Stat(h.options.Cert); err == nil {
 
-				cert, err = ioutil.ReadFile(h.options.HttpCert)
+				cert, err = ioutil.ReadFile(h.options.Cert)
 				if err != nil {
 					log.Panic(err)
 				}
 			} else {
-				cert = []byte(h.options.HttpCert)
+				cert = []byte(h.options.Cert)
 			}
 
 			// load key
 			var key []byte
-			if _, err := os.Stat(h.options.HttpKey); err == nil {
+			if _, err := os.Stat(h.options.Key); err == nil {
 
-				key, err = ioutil.ReadFile(h.options.HttpKey)
+				key, err = ioutil.ReadFile(h.options.Key)
 				if err != nil {
 					log.Panic(err)
 				}
 			} else {
-				key = []byte(h.options.HttpKey)
+				key = []byte(h.options.Key)
 			}
 
 			// make pair from certificate and pair
@@ -121,14 +121,14 @@ func (h *HttpInput) Start(wg *sync.WaitGroup) {
 
 			// load CA chain
 			var chain []byte
-			if _, err := os.Stat(h.options.HttpChain); err == nil {
+			if _, err := os.Stat(h.options.Chain); err == nil {
 
-				chain, err = ioutil.ReadFile(h.options.HttpChain)
+				chain, err = ioutil.ReadFile(h.options.Chain)
 				if err != nil {
 					log.Panic(err)
 				}
 			} else {
-				chain = []byte(h.options.HttpChain)
+				chain = []byte(h.options.Chain)
 			}
 
 			// make pool of chains
@@ -147,14 +147,14 @@ func (h *HttpInput) Start(wg *sync.WaitGroup) {
 				url := h.getUrl((*p).GetUrlPattern())
 				var o *HttpOidc
 
-				if h.options.HttpOidcEnabled && !utils.IsEmpty(h.options.HttpOidcConfigURL) {
+				if h.options.OidcEnabled && !utils.IsEmpty(h.options.OidcConfigURL) {
 					o = NewHttpOidc(&h.options)
 				}
 
 				if o != nil {
-					router.HandleFunc(h.getUrl(h.options.HttpOidcLoginURL), h.counterFunc(o.oidcLogin))
-					router.HandleFunc(h.getUrl(h.options.HttpOidcLogoutURL), h.counterFunc(o.oidcLogout))
-					router.HandleFunc(h.getUrl(h.options.HttpOidcCallbackURL),h.counterFunc(o.oidcCallback))
+					router.HandleFunc(h.getUrl(h.options.OidcLoginURL), h.counterFunc(o.oidcLogin))
+					router.HandleFunc(h.getUrl(h.options.OidcLogoutURL), h.counterFunc(o.oidcLogout))
+					router.HandleFunc(h.getUrl(h.options.OidcCallbackURL), h.counterFunc(o.oidcCallback))
 					router.HandleFunc(url, h.counterFunc(o.oidcCheck((*p).HandleHttpRequest)))
 				} else {
 					router.HandleFunc(url, h.counterFunc((*p).HandleHttpRequest))
@@ -162,7 +162,7 @@ func (h *HttpInput) Start(wg *sync.WaitGroup) {
 			}
 		}
 
-		listener, err := net.Listen("tcp", h.options.HttpListen)
+		listener, err := net.Listen("tcp", h.options.Listen)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -171,7 +171,7 @@ func (h *HttpInput) Start(wg *sync.WaitGroup) {
 
 		srv := &http.Server{Handler: router}
 
-		if h.options.HttpTls {
+		if h.options.Tls {
 
 			srv.TLSConfig = &tls.Config{
 				Certificates: certificates,

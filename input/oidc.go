@@ -62,7 +62,7 @@ func (o *HttpOidc) writeCookie(w http.ResponseWriter, name string, value string,
 	c := &http.Cookie{
 		Name:    name,
 		Value:   value,
-		Path:    o.options.HttpURL,
+		Path:    o.options.URL,
 		Expires: expires,
 	}
 
@@ -83,7 +83,7 @@ func (o *HttpOidc) deleteCookie(w http.ResponseWriter, name string) {
 	c := &http.Cookie{
 		Name:    name,
 		Value:   "",
-		Path:    o.options.HttpURL,
+		Path:    o.options.URL,
 		Expires: time.Unix(0, 0),
 	}
 
@@ -111,11 +111,11 @@ func (o *HttpOidc) getAccessToken(r *http.Request) string {
 }
 
 func (o *HttpOidc) getDefaultURL() string {
-	return fmt.Sprintf("%s%s", o.options.HttpURL, o.options.HttpOidcDefaultURL)
+	return fmt.Sprintf("%s%s", o.options.URL, o.options.OidcDefaultURL)
 }
 
 func (o *HttpOidc) getLoginURL() string {
-	return fmt.Sprintf("%s%s", o.options.HttpURL, o.options.HttpOidcLoginURL)
+	return fmt.Sprintf("%s%s", o.options.URL, o.options.OidcLoginURL)
 }
 
 func (o *HttpOidc) oidcCheck(callback func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
@@ -154,7 +154,7 @@ func (o *HttpOidc) oidcLogin(w http.ResponseWriter, r *http.Request) {
 	if utils.IsEmpty(accessToken) {
 
 		state := genRandomString()
-		hashedState := hashStatecode(state, o.secretKey, o.options.HttpOidcClientSecret)
+		hashedState := hashStatecode(state, o.secretKey, o.options.OidcClientSecret)
 		o.writeCookie(w, oidcStateCookieName, hashedState, time.Now().Add(60*time.Second))
 		http.Redirect(w, r, o.config.AuthCodeURL(state, oauth2.AccessTypeOnline), http.StatusFound)
 		return
@@ -181,7 +181,7 @@ func (o *HttpOidc) oidcLogout(w http.ResponseWriter, r *http.Request) {
 		if !utils.IsEmpty(o.endSessionEndpoint) && !utils.IsEmpty(refreshToken) {
 
 			data := fmt.Sprintf("client_id=%s&client_secret=%s&refresh_token=%s",
-				o.options.HttpOidcClientId, o.options.HttpOidcClientSecret, refreshToken)
+				o.options.OidcClientId, o.options.OidcClientSecret, refreshToken)
 			reader := bytes.NewReader([]byte(data))
 
 			req, err := http.NewRequest("POST", o.endSessionEndpoint, reader)
@@ -222,7 +222,7 @@ func (o *HttpOidc) oidcLogout(w http.ResponseWriter, r *http.Request) {
 func (o *HttpOidc) oidcCallback(w http.ResponseWriter, r *http.Request) {
 
 	cookieState := o.readCookie(r, oidcStateCookieName)
-	queryState := hashStatecode(r.URL.Query().Get("state"), o.secretKey, o.options.HttpOidcClientSecret)
+	queryState := hashStatecode(r.URL.Query().Get("state"), o.secretKey, o.options.OidcClientSecret)
 
 	if cookieState != queryState {
 		http.Error(w, "State did not match", http.StatusBadRequest)
@@ -322,7 +322,7 @@ func getLogoutEndpoint(ctx context.Context, issuer string) string {
 func NewHttpOidc(options *HttpInputOptions) *HttpOidc {
 
 	ctx := context.Background()
-	provider, err := oidc.NewProvider(ctx, options.HttpOidcConfigURL)
+	provider, err := oidc.NewProvider(ctx, options.OidcConfigURL)
 	if err != nil {
 		log.Error(err)
 		return nil
@@ -330,32 +330,32 @@ func NewHttpOidc(options *HttpInputOptions) *HttpOidc {
 
 	endSessionEndpoint := ""
 
-	if !utils.IsEmpty(options.HttpOidcLogoutURL) {
-		endSessionEndpoint = getLogoutEndpoint(ctx, options.HttpOidcConfigURL)
+	if !utils.IsEmpty(options.OidcLogoutURL) {
+		endSessionEndpoint = getLogoutEndpoint(ctx, options.OidcConfigURL)
 	}
 
 	oidcConfig := &oidc.Config{
-		ClientID: options.HttpOidcClientId,
+		ClientID: options.OidcClientId,
 	}
 	verifier := provider.Verifier(oidcConfig)
 
 	var redirectUrl string
 
-	if !utils.IsEmpty(options.HttpExternalHost) {
+	if !utils.IsEmpty(options.ExternalHost) {
 
-		redirectUrl = fmt.Sprintf("%s%s", options.HttpExternalHost, options.HttpOidcCallbackURL)
+		redirectUrl = fmt.Sprintf("%s%s", options.ExternalHost, options.OidcCallbackURL)
 
 	} else {
 
 		scheme := "http"
-		if options.HttpTls {
+		if options.Tls {
 			scheme = "https"
 		}
 
 		host := ""
 		port := 80
 
-		listen := options.HttpListen
+		listen := options.Listen
 		if !utils.IsEmpty(listen) {
 
 			parts := strings.Split(listen, ":")
@@ -374,26 +374,26 @@ func NewHttpOidc(options *HttpInputOptions) *HttpOidc {
 		}
 
 		hostPort := ""
-		if (port == 80 && !options.HttpTls) || (port == 443 && options.HttpTls) {
+		if (port == 80 && !options.Tls) || (port == 443 && options.Tls) {
 			hostPort = host
 		} else {
 			hostPort = fmt.Sprintf("%s:%d", host, port)
 		}
 
-		redirectUrl = fmt.Sprintf("%s://%s%s%s", scheme, hostPort, options.HttpURL, options.HttpOidcCallbackURL)
+		redirectUrl = fmt.Sprintf("%s://%s%s%s", scheme, hostPort, options.URL, options.OidcCallbackURL)
 	}
 
 	scopes := []string{oidc.ScopeOpenID}
 
-	parts := strings.Split(options.HttpOidcScopes, ",")
+	parts := strings.Split(options.OidcScopes, ",")
 	for _, part := range parts {
 
 		scopes = append(scopes, strings.TrimSpace(part))
 	}
 
 	oauth2Config := &oauth2.Config{
-		ClientID:     options.HttpOidcClientId,
-		ClientSecret: options.HttpOidcClientSecret,
+		ClientID:     options.OidcClientId,
+		ClientSecret: options.OidcClientSecret,
 		RedirectURL:  redirectUrl,
 		Endpoint:     provider.Endpoint(),
 		Scopes:       scopes,

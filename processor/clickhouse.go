@@ -35,21 +35,21 @@ var clickhouseProcessorRequests = prometheus.NewCounterVec(prometheus.CounterOpt
 }, []string{})
 
 type ClickhouseProcessorOptions struct {
-	ClickhouseHost              string
-	ClickhousePort              int
-	ClickhouseUser              string
-	ClickhousePassword          string
-	ClickhouseDebug             bool
-	ClickhouseURLPattern        string
-	ClickhouseReadTimeout       int
-	ClickhouseDatabasePattern   string
-	ClickhouseTablePattern      string
-	ClickhouseQueryLimit        int
-	ClickhouseIdentFormat       string
-	ClickhouseCacheLifeSeconds  int
-	ClickhouseCacheCleanSeconds int
-	ClickhouseCacheMaxSize      int
-	ClickhouseRefreshInterval   int
+	Host              string
+	Port              int
+	User              string
+	Password          string
+	Debug             bool
+	URLPattern        string
+	ReadTimeout       int
+	DatabasePattern   string
+	TablePattern      string
+	QueryLimit        int
+	IdentFormat       string
+	CacheLifeSeconds  int
+	CacheCleanSeconds int
+	CacheMaxSize      int
+	RefreshInterval   int
 }
 
 type ClickhouseProcessor struct {
@@ -61,7 +61,7 @@ type ClickhouseProcessor struct {
 
 func (cp *ClickhouseProcessor) GetUrlPattern() string {
 
-	return cp.options.ClickhouseURLPattern
+	return cp.options.URLPattern
 }
 
 func (cp *ClickhouseProcessor) HandleHttpRequest(w http.ResponseWriter, r *http.Request) {
@@ -324,7 +324,7 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 			aft = graphql.String
 		}
 
-		ident := prepareIdent(item.Name, options.ClickhouseIdentFormat)
+		ident := prepareIdent(item.Name, options.IdentFormat)
 		orderValues[fmt.Sprintf("%sASC", item.Name)] = &graphql.EnumValueConfig{Value: fmt.Sprintf("%s ASC", ident)}
 		orderValues[fmt.Sprintf("%sDESC", item.Name)] = &graphql.EnumValueConfig{Value: fmt.Sprintf("%s DESC", ident)}
 
@@ -344,7 +344,7 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 
 	queryArgs["limit"] = &graphql.ArgumentConfig{
 		Type:        graphql.Int,
-		Description: fmt.Sprintf("Query limit (default: %d)", options.ClickhouseQueryLimit),
+		Description: fmt.Sprintf("Query limit (default: %d)", options.QueryLimit),
 	}
 
 	queryArgs["offset"] = &graphql.ArgumentConfig{
@@ -368,12 +368,12 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 		Args: queryArgs,
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 
-			fields := getFieldsString(p, options.ClickhouseIdentFormat)
+			fields := getFieldsString(p, options.IdentFormat)
 			if utils.IsEmpty(fields) {
 				fields = "*"
 			}
 
-			where := getWhereString(p, options.ClickhouseIdentFormat)
+			where := getWhereString(p, options.IdentFormat)
 			if !utils.IsEmpty(where) {
 				where = fmt.Sprintf(" WHERE %s", where)
 			}
@@ -394,7 +394,7 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 
 			limit, ok := p.Args["limit"].(int)
 			if !ok || (ok && limit <= 0) {
-				limit = options.ClickhouseQueryLimit
+				limit = options.QueryLimit
 			}
 
 			offset, ok := p.Args["offset"].(int)
@@ -403,8 +403,8 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 			}
 
 			query := fmt.Sprintf("SELECT %s FROM %s.%s%s%s LIMIT %d OFFSET %d",
-				fields, prepareIdent(database, options.ClickhouseIdentFormat),
-				prepareIdent(table, options.ClickhouseIdentFormat), where, order, limit, offset)
+				fields, prepareIdent(database, options.IdentFormat),
+				prepareIdent(table, options.IdentFormat), where, order, limit, offset)
 
 			var r []map[string]interface{}
 
@@ -464,7 +464,7 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 
 func makeHandler(db *sqlx.DB, cache *bigcache.BigCache, clickhouseOptions ClickhouseProcessorOptions, graphqlOptions common.GraphqlOptions, database string) *handler.Handler {
 
-	query := fmt.Sprintf("SELECT name FROM system.tables WHERE database='%s' AND match(name,'%s')=1", database, clickhouseOptions.ClickhouseTablePattern)
+	query := fmt.Sprintf("SELECT name FROM system.tables WHERE database='%s' AND match(name,'%s')=1", database, clickhouseOptions.TablePattern)
 
 	var items []struct {
 		Name string `db:"name"`
@@ -518,7 +518,7 @@ func makeHandler(db *sqlx.DB, cache *bigcache.BigCache, clickhouseOptions Clickh
 
 func refreshHandlers(p *ClickhouseProcessor, db *sqlx.DB, cache *bigcache.BigCache, graphqlOptions common.GraphqlOptions) {
 
-	query := fmt.Sprintf("SELECT name FROM system.databases WHERE match(name,'%s')=1", p.options.ClickhouseDatabasePattern)
+	query := fmt.Sprintf("SELECT name FROM system.databases WHERE match(name,'%s')=1", p.options.DatabasePattern)
 
 	var items []struct {
 		Name string `db:"name"`
@@ -541,8 +541,8 @@ func refreshHandlers(p *ClickhouseProcessor, db *sqlx.DB, cache *bigcache.BigCac
 func getDB(options ClickhouseProcessorOptions) *sqlx.DB {
 
 	url := fmt.Sprintf("tcp://%s:%d?debug=%s&username=%s&password=%s&read_timeout=%d",
-		options.ClickhouseHost, options.ClickhousePort, strconv.FormatBool(options.ClickhouseDebug),
-		options.ClickhouseUser, options.ClickhousePassword, options.ClickhouseReadTimeout)
+		options.Host, options.Port, strconv.FormatBool(options.Debug),
+		options.User, options.Password, options.ReadTimeout)
 
 	db, err := sqlx.Open("clickhouse", url)
 	if err != nil {
@@ -563,11 +563,11 @@ func NewClickhouseProcessor(processorOptions ClickhouseProcessorOptions, graphql
 	var cache *bigcache.BigCache
 	var err error
 
-	if processorOptions.ClickhouseCacheLifeSeconds >= 0 {
+	if processorOptions.CacheLifeSeconds >= 0 {
 
-		config := bigcache.DefaultConfig(time.Duration(processorOptions.ClickhouseCacheLifeSeconds) * time.Second)
-		config.CleanWindow = time.Duration(processorOptions.ClickhouseCacheCleanSeconds) * time.Second
-		config.HardMaxCacheSize = processorOptions.ClickhouseCacheMaxSize
+		config := bigcache.DefaultConfig(time.Duration(processorOptions.CacheLifeSeconds) * time.Second)
+		config.CleanWindow = time.Duration(processorOptions.CacheCleanSeconds) * time.Second
+		config.HardMaxCacheSize = processorOptions.CacheMaxSize
 
 		cache, err = bigcache.NewBigCache(config)
 		if err != nil {
@@ -582,10 +582,10 @@ func NewClickhouseProcessor(processorOptions ClickhouseProcessorOptions, graphql
 		playground: graphqlOptions.IsPlayground(),
 	}
 
-	if processorOptions.ClickhouseRefreshInterval > 0 {
+	if processorOptions.RefreshInterval > 0 {
 
 		scheduler := gocron.NewScheduler()
-		scheduler.Every(uint64(processorOptions.ClickhouseRefreshInterval)).Seconds().From(gocron.NextTick()).DoSafely(refreshHandlers, processor, db, cache, graphqlOptions)
+		scheduler.Every(uint64(processorOptions.RefreshInterval)).Seconds().From(gocron.NextTick()).DoSafely(refreshHandlers, processor, db, cache, graphqlOptions)
 		go scheduler.Start()
 
 	} else {
