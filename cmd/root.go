@@ -44,9 +44,9 @@ var rootOpts = rootOptions{
 }
 
 var httpInputOptions = input.HttpInputOptions{
-
 	URL:    env.Get("SHIPPER_HTTP_URL", "/shipper").(string),
 	Listen: env.Get("SHIPPER_HTTP_LISTEN", ":80").(string),
+	Cors:   env.Get("SHIPPER_HTTP_CORS", false).(bool),
 	Tls:    env.Get("SHIPPER_HTTP_TLS", false).(bool),
 	Cert:   env.Get("SHIPPER_HTTP_CERT", "").(string),
 	Key:    env.Get("SHIPPER_HTTP_KEY", "").(string),
@@ -63,6 +63,7 @@ var httpInputOptions = input.HttpInputOptions{
 	OidcCallbackURL:  env.Get("SHIPPER_HTTP_OIDC_CALLBACK_URL", "/callback").(string),
 	OidcDefaultURL:   env.Get("SHIPPER_HTTP_OIDC_DEFAULT_URL", "").(string),
 	OidcScopes:       env.Get("SHIPPER_HTTP_OIDC_SCOPES", "profile, email, roles, groups").(string),
+
 }
 
 var graphqlOptions = common.GraphqlOptions{
@@ -178,6 +179,7 @@ func Execute() {
 
 	flags.StringVar(&httpInputOptions.URL, "http-url", httpInputOptions.URL, "Http url")
 	flags.StringVar(&httpInputOptions.Listen, "http-listen", httpInputOptions.Listen, "Http listen")
+	flags.BoolVar(&httpInputOptions.Cors, "http-cors", httpInputOptions.Cors, "Http CORS true/false")
 	flags.BoolVar(&httpInputOptions.Tls, "http-tls", httpInputOptions.Tls, "Http TLS")
 	flags.StringVar(&httpInputOptions.Cert, "http-cert", httpInputOptions.Cert, "Http cert file or content")
 	flags.StringVar(&httpInputOptions.Key, "http-key", httpInputOptions.Key, "Http key file or content")

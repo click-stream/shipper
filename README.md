@@ -127,6 +127,7 @@ Flags:
       --http-external-host string            Http external host
       --http-key string                      Http key file or content
       --http-listen string                   Http listen (default ":80")
+      --http-cors                            Http CORS enabled true/false (default false)
       --http-oidc-callback-url string        Http oidc callback url (default "/callback")
       --http-oidc-client-id string           Http oidc client id
       --http-oidc-client-secret string       Http oidc client secret
@@ -158,6 +159,7 @@ For containerization purpose all command switches have environment variables ana
 
 - SHIPPER_HTTP_URL
 - SHIPPER_HTTP_LISTEN
+- SHIPPER_HTTP_CORS
 - SHIPPER_HTTP_TLS
 - SHIPPER_HTTP_CERT
 - SHIPPER_HTTP_KEY
