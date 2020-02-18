@@ -142,6 +142,8 @@ func Execute() {
 
 			log.Info("Booting...")
 
+			log.Info("Shipper version " + VERSION)
+
 			var wg sync.WaitGroup
 
 			startMetrics(&wg)
@@ -164,7 +166,7 @@ func Execute() {
 
 			inputs.Start(&wg)
 
-			log.Info("shipper version" + VERSION)
+
 
 			wg.Wait()
 		},
