@@ -19,7 +19,7 @@ import (
 )
 
 // Version of the app
-var VERSION = "unknown"
+var VERSION = "0.0.4"
 
 var log = utils.GetLog()
 var env = utils.GetEnvironment()
@@ -163,6 +163,8 @@ func Execute() {
 			inputs.Add(&httpInput)
 
 			inputs.Start(&wg)
+
+			log.Info("shipper version" + VERSION)
 
 			wg.Wait()
 		},
