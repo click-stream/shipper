@@ -263,11 +263,10 @@ func (h *HttpInput) Start(wg *sync.WaitGroup) {
 					router.HandleFunc(h.getUrl(h.options.OidcLogoutURL), h.counterFunc(o.oidcLogout))
 					router.HandleFunc(h.getUrl(h.options.OidcCallbackURL), h.counterFunc(o.oidcCallback))
 					router.HandleFunc(url, h.counterFunc(o.oidcCheck((*p).HandleHttpRequest)))
-					router.HandleFunc(url+"/rate", h.rateFunc())
 				} else {
 					router.HandleFunc(url, h.counterFunc((*p).HandleHttpRequest))
-					router.HandleFunc(url+"/rate", h.rateFunc())
 				}
+				router.HandleFunc(url+"/rate", h.rateFunc())
 			}
 		}
 
