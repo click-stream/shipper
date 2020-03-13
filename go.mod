@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/ClickHouse/clickhouse-go v1.3.13
 	github.com/allegro/bigcache v1.2.1
+	github.com/click-stream/ratecounter v0.2.1
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/devopsext/utils v0.0.3
 	github.com/gorilla/mux v1.7.3
