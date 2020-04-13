@@ -5,7 +5,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"github.com/click-stream/ratecounter"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -13,13 +12,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/click-stream/ratecounter"
+
 	"github.com/click-stream/shipper/common"
 	"github.com/devopsext/utils"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 )
-
-
 
 var httpInputRequests = prometheus.NewCounterVec(prometheus.CounterOpts{
 	Name: "shipper_http_input_requests",
@@ -76,15 +75,15 @@ type ResponseLogger struct {
 	outputBytesLength int64
 	//response []byte
 }
+
 func (r *ResponseLogger) Write(b []byte) (int, error) {
 	r.outputBytesLength = int64(len(b))
 	return r.ResponseWriter.Write(b)
 }
 
-func newResponseLogger(w http.ResponseWriter) *ResponseLogger{
+func newResponseLogger(w http.ResponseWriter) *ResponseLogger {
 	return &ResponseLogger{w, 0}
 }
-
 
 type HttpInputOptions struct {
 	URL              string
@@ -156,7 +155,7 @@ func (h *HttpInput) rateFunc() func(w http.ResponseWriter, r *http.Request) {
 func (h *HttpInput) counterFunc(callback func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		httpInputRequests.WithLabelValues(r.URL.Path).Inc()
-		h.SetupCors(w,r)
+		h.SetupCors(w, r)
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(200)
 			return

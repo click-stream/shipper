@@ -12,6 +12,7 @@ It supports conditions, limits and offsets. All requests can be cached and authe
 - Support all selectable object: tables, views, materialized views, etc.
 - Provide sorting (asc, desc), record limits and offsets 
 - Support conditions like: Match, EQ, NE, LT, LE, GT, GE 
+- Support groups and sums 
 - Include GraphQL Playground, OIDC, Prometheus metrics
 - Refresh schemas automatically
 - Provide response cache using size or time  
