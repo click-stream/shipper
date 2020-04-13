@@ -133,7 +133,7 @@ func getFieldsString(p graphql.ResolveParams, format string) string {
 	return r
 }
 
-var exclude = []string{"limit", "offset", "order"}
+var exclude = []string{"limit", "offset", "order", "sum", "group"}
 var operationFormats = map[string]string{
 	"Match": "match(%s,%v) = 1",
 	"EQ":    "%s = %v",
@@ -237,6 +237,30 @@ func getOrderString(orders []interface{}) string {
 	return r
 }
 
+func getGroupString(groups []interface{}) string {
+
+	r := ""
+
+	for _, group := range groups {
+
+		s, ok := group.(string)
+		if !ok {
+			continue
+		}
+
+		if !utils.IsEmpty(s) {
+
+			if utils.IsEmpty(r) {
+				r = s
+			} else {
+				r = fmt.Sprintf("%s, %s", r, s)
+			}
+		}
+	}
+	return r
+}
+
+
 func setArgsWithType(name string, description string, args graphql.FieldConfigArgument, aft graphql.Input) {
 
 	args[fmt.Sprintf("%sMatch", name)] = &graphql.ArgumentConfig{
@@ -273,6 +297,7 @@ func setArgsWithType(name string, description string, args graphql.FieldConfigAr
 		Description: fmt.Sprintf("Greater than or equal for %s", name),
 		Type:        aft,
 	}
+
 }
 
 func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcessorOptions, database string, table string) *graphql.Field {
@@ -298,6 +323,8 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 	objFields := make(graphql.Fields)
 	queryArgs := make(graphql.FieldConfigArgument)
 	orderValues := make(graphql.EnumValueConfigMap)
+	groupValues := make(graphql.EnumValueConfigMap)
+	sumValues := make(graphql.EnumValueConfigMap)
 
 	for _, item := range items {
 
@@ -327,6 +354,13 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 		ident := prepareIdent(item.Name, options.IdentFormat)
 		orderValues[fmt.Sprintf("%sASC", item.Name)] = &graphql.EnumValueConfig{Value: fmt.Sprintf("%s ASC", ident)}
 		orderValues[fmt.Sprintf("%sDESC", item.Name)] = &graphql.EnumValueConfig{Value: fmt.Sprintf("%s DESC", ident)}
+
+		groupValues[item.Name] = &graphql.EnumValueConfig{Value: fmt.Sprintf("%s", ident)}
+
+		if aft != graphql.String {
+			sumValues[item.Name] = &graphql.EnumValueConfig{Value: fmt.Sprintf("%s", ident)}
+		}
+
 
 		setArgsWithType(item.Name, item.Comment, queryArgs, aft)
 
@@ -361,6 +395,27 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 		Type: graphql.NewList(graphql.NewEnum(orderConfig)),
 	}
 
+	groupConfig := graphql.EnumConfig{
+		Name:   fmt.Sprintf("%sGroup", table),
+		Values: groupValues,
+	}
+
+	queryArgs["group"] = &graphql.ArgumentConfig{
+		Type: graphql.NewList(graphql.NewEnum(groupConfig)),
+	}
+
+	if len(sumValues)>0 {
+		sumConfig := graphql.EnumConfig{
+			Name:   fmt.Sprintf("%sSum", table),
+			Values: sumValues,
+		}
+
+		queryArgs["sum"] = &graphql.ArgumentConfig{
+			Type: graphql.NewList(graphql.NewEnum(sumConfig)),
+		}
+	}
+
+
 	gob.Register(time.Time{})
 
 	r := &graphql.Field{
@@ -379,11 +434,11 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 			}
 
 			order := ""
-			pArg := p.Args["order"]
+			pOrderArg := p.Args["order"]
 
-			if pArg != nil {
+			if pOrderArg != nil {
 
-				orders, ok := pArg.([]interface{})
+				orders, ok := pOrderArg.([]interface{})
 				if ok {
 					order = getOrderString(orders)
 					if !utils.IsEmpty(order) {
@@ -391,6 +446,39 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 					}
 				}
 			}
+
+			group := ""
+			pGroupArg := p.Args["group"]
+
+			if pGroupArg != nil {
+
+				groups, ok := pGroupArg.([]interface{})
+				if ok {
+					group = getGroupString(groups)
+					if !utils.IsEmpty(group) {
+						group = fmt.Sprintf(" GROUP BY %s", group)
+					}
+				}
+			}
+
+			pSumArg := p.Args["sum"]
+
+			if pSumArg != nil {
+
+				sums, ok := pSumArg.([]interface{})
+				if ok {
+					for _, sum := range sums {
+						s, ok := sum.(string)
+						if !ok {
+							continue
+						}
+						if !utils.IsEmpty(s) {
+							fields = strings.ReplaceAll(fields, s, fmt.Sprintf("sum(%s) as %s", s,s))
+						}
+					}
+				}
+			}
+
 
 			limit, ok := p.Args["limit"].(int)
 			if !ok || (ok && limit <= 0) {
@@ -402,9 +490,11 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 				offset = 0
 			}
 
-			query := fmt.Sprintf("SELECT %s FROM %s.%s%s%s LIMIT %d OFFSET %d",
+			query := fmt.Sprintf("SELECT %s FROM %s.%s%s%s%s LIMIT %d OFFSET %d",
 				fields, prepareIdent(database, options.IdentFormat),
-				prepareIdent(table, options.IdentFormat), where, order, limit, offset)
+				prepareIdent(table, options.IdentFormat), where, group, order, limit, offset)
+
+			//fmt.Println(query)
 
 			var r []map[string]interface{}
 
