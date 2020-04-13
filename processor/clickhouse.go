@@ -260,7 +260,6 @@ func getGroupString(groups []interface{}) string {
 	return r
 }
 
-
 func setArgsWithType(name string, description string, args graphql.FieldConfigArgument, aft graphql.Input) {
 
 	args[fmt.Sprintf("%sMatch", name)] = &graphql.ArgumentConfig{
@@ -361,7 +360,6 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 			sumValues[item.Name] = &graphql.EnumValueConfig{Value: fmt.Sprintf("%s", ident)}
 		}
 
-
 		setArgsWithType(item.Name, item.Comment, queryArgs, aft)
 
 		field := graphql.Field{
@@ -404,7 +402,7 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 		Type: graphql.NewList(graphql.NewEnum(groupConfig)),
 	}
 
-	if len(sumValues)>0 {
+	if len(sumValues) > 0 {
 		sumConfig := graphql.EnumConfig{
 			Name:   fmt.Sprintf("%sSum", table),
 			Values: sumValues,
@@ -414,7 +412,6 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 			Type: graphql.NewList(graphql.NewEnum(sumConfig)),
 		}
 	}
-
 
 	gob.Register(time.Time{})
 
@@ -473,12 +470,11 @@ func makeField(db *sqlx.DB, cache *bigcache.BigCache, options ClickhouseProcesso
 							continue
 						}
 						if !utils.IsEmpty(s) {
-							fields = strings.ReplaceAll(fields, s, fmt.Sprintf("sum(%s) as %s", s,s))
+							fields = strings.ReplaceAll(fields, s, fmt.Sprintf("sum(%s) as %s", s, s))
 						}
 					}
 				}
 			}
-
 
 			limit, ok := p.Args["limit"].(int)
 			if !ok || (ok && limit <= 0) {
