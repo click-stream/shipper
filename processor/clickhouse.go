@@ -563,7 +563,7 @@ func NewClickhouseProcessor(processorOptions ClickhouseProcessorOptions, graphql
 	var cache *bigcache.BigCache
 	var err error
 
-	if processorOptions.CacheLifeSeconds >= 0 {
+	if processorOptions.CacheLifeSeconds > 0 {
 
 		config := bigcache.DefaultConfig(time.Duration(processorOptions.CacheLifeSeconds) * time.Second)
 		config.CleanWindow = time.Duration(processorOptions.CacheCleanSeconds) * time.Second
