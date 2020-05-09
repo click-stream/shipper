@@ -103,6 +103,7 @@ type HttpInputOptions struct {
 	OidcCallbackURL  string
 	OidcDefaultURL   string
 	OidcScopes       string
+	RateSuffixURL    string
 }
 
 type HttpInput struct {
@@ -257,15 +258,17 @@ func (h *HttpInput) Start(wg *sync.WaitGroup) {
 					o = NewHttpOidc(&h.options)
 				}
 
+				router.HandleFunc(url+h.options.RateSuffixURL, h.rateFunc())
+
 				if o != nil {
 					router.HandleFunc(h.getUrl(h.options.OidcLoginURL), h.counterFunc(o.oidcLogin))
 					router.HandleFunc(h.getUrl(h.options.OidcLogoutURL), h.counterFunc(o.oidcLogout))
 					router.HandleFunc(h.getUrl(h.options.OidcCallbackURL), h.counterFunc(o.oidcCallback))
-					router.HandleFunc(url, h.counterFunc(o.oidcCheck((*p).HandleHttpRequest)))
+					router.PathPrefix(url).HandlerFunc(h.counterFunc(o.oidcCheck((*p).HandleHttpRequest)))
 				} else {
-					router.HandleFunc(url, h.counterFunc((*p).HandleHttpRequest))
+					router.PathPrefix(url).HandlerFunc(h.counterFunc((*p).HandleHttpRequest))
 				}
-				router.HandleFunc(url+"/rate", h.rateFunc())
+
 			}
 		}
 

@@ -50,13 +50,15 @@ type ClickhouseProcessorOptions struct {
 	CacheCleanSeconds int
 	CacheMaxSize      int
 	RefreshInterval   int
+	ActionRefresh     string
 }
 
 type ClickhouseProcessor struct {
-	db         *sqlx.DB
-	handlers   sync.Map
-	options    ClickhouseProcessorOptions
-	playground bool
+	db             *sqlx.DB
+	cache          *bigcache.BigCache
+	handlers       sync.Map
+	options        ClickhouseProcessorOptions
+	graphqlOptions common.GraphqlOptions
 }
 
 func (cp *ClickhouseProcessor) GetUrlPattern() string {
@@ -67,9 +69,9 @@ func (cp *ClickhouseProcessor) GetUrlPattern() string {
 func (cp *ClickhouseProcessor) HandleHttpRequest(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	ident := vars["database"]
+	database := vars["database"]
 
-	h, ok := cp.handlers.Load(ident)
+	h, ok := cp.handlers.Load(database)
 	if !ok || h == nil {
 
 		log.Error("Not found")
@@ -77,8 +79,22 @@ func (cp *ClickhouseProcessor) HandleHttpRequest(w http.ResponseWriter, r *http.
 		return
 	}
 
+	parts := strings.Split(r.URL.String(), "/")
+	if len(parts) > 0 && parts[len(parts)-1] == cp.options.ActionRefresh {
+
+		refreshHandlers(cp, database)
+		if _, err := w.Write([]byte("OK\n")); err != nil {
+
+			log.Error("Can't write response: %v", err)
+			http.Error(w, fmt.Sprintf("could not write response: %v", err), http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
 	// fix default Playground
-	if cp.playground {
+	if cp.graphqlOptions.IsPlayground() {
+
 		acceptHeader := r.Header.Get("Accept")
 		_, raw := r.URL.Query()["raw"]
 		if !raw && !strings.Contains(acceptHeader, "application/json") && strings.Contains(acceptHeader, "text/html") {
@@ -602,22 +618,22 @@ func makeHandler(db *sqlx.DB, cache *bigcache.BigCache, clickhouseOptions Clickh
 	return handler.New(config)
 }
 
-func refreshHandlers(p *ClickhouseProcessor, db *sqlx.DB, cache *bigcache.BigCache, graphqlOptions common.GraphqlOptions) {
+func refreshHandlers(p *ClickhouseProcessor, pattern string) {
 
-	query := fmt.Sprintf("SELECT name FROM system.databases WHERE match(name,'%s')=1", p.options.DatabasePattern)
+	query := fmt.Sprintf("SELECT name FROM system.databases WHERE match(name,'%s')=1", pattern)
 
 	var items []struct {
 		Name string `db:"name"`
 	}
 
-	if err := db.Select(&items, query); err != nil {
+	if err := p.db.Select(&items, query); err != nil {
 		log.Error(err)
 		return
 	}
 
 	for _, item := range items {
 
-		h := makeHandler(db, cache, p.options, graphqlOptions, item.Name)
+		h := makeHandler(p.db, p.cache, p.options, p.graphqlOptions, item.Name)
 		if h != nil {
 			p.handlers.Store(item.Name, h)
 		}
@@ -662,20 +678,21 @@ func NewClickhouseProcessor(processorOptions ClickhouseProcessorOptions, graphql
 	}
 
 	processor := &ClickhouseProcessor{
-		db:         db,
-		handlers:   sync.Map{},
-		options:    processorOptions,
-		playground: graphqlOptions.IsPlayground(),
+		db:             db,
+		cache:          cache,
+		handlers:       sync.Map{},
+		options:        processorOptions,
+		graphqlOptions: graphqlOptions,
 	}
 
 	if processorOptions.RefreshInterval > 0 {
 
 		scheduler := gocron.NewScheduler()
-		scheduler.Every(uint64(processorOptions.RefreshInterval)).Seconds().From(gocron.NextTick()).DoSafely(refreshHandlers, processor, db, cache, graphqlOptions)
+		scheduler.Every(uint64(processorOptions.RefreshInterval)).Seconds().From(gocron.NextTick()).DoSafely(refreshHandlers, processor, processorOptions.DatabasePattern)
 		go scheduler.Start()
 
 	} else {
-		refreshHandlers(processor, db, cache, graphqlOptions)
+		refreshHandlers(processor, processorOptions.DatabasePattern)
 	}
 
 	return processor

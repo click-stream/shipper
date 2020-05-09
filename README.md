@@ -105,6 +105,7 @@ Available Commands:
   version     Print the version number
 
 Flags:
+      --clickhouse-action-refresh string     Clickhouse action refresh (default "refresh")
       --clickhouse-cache-clean-seconds int   Clickhouse cache clean seconds
       --clickhouse-cache-life-seconds int    Clickhouse cache life seconds
       --clickhouse-cache-max-size int        Clickhouse cache max size in MB
@@ -194,3 +195,4 @@ For containerization purpose all command switches have environment variables ana
 - SHIPPER_CLICKHOUSE_CACHE_CLEAN_SECONDS
 - SHIPPER_CLICKHOUSE_CACHE_MAX_SIZE
 - SHIPPER_CLICKHOUSE_REFRESH_INTERVAL
+- SHIPPER_CLICKHOUSE_ACTION_REFRESH

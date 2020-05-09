@@ -64,6 +64,7 @@ var httpInputOptions = input.HttpInputOptions{
 	OidcDefaultURL:   env.Get("SHIPPER_HTTP_OIDC_DEFAULT_URL", "").(string),
 	OidcScopes:       env.Get("SHIPPER_HTTP_OIDC_SCOPES", "profile, email, roles, groups").(string),
 
+	RateSuffixURL: env.Get("SHIPPER_HTTP_RATE_SUFFIX_URL", "/rate").(string),
 }
 
 var graphqlOptions = common.GraphqlOptions{
@@ -88,6 +89,7 @@ var clickhouseProcessorOptions = processor.ClickhouseProcessorOptions{
 	CacheCleanSeconds: env.Get("SHIPPER_CLICKHOUSE_CACHE_CLEAN_SECONDS", 0).(int),
 	CacheMaxSize:      env.Get("SHIPPER_CLICKHOUSE_CACHE_MAX_SIZE", 0).(int),
 	RefreshInterval:   env.Get("SHIPPER_CLICKHOUSE_REFRESH_INTERVAL", 60).(int),
+	ActionRefresh:     env.Get("SHIPPER_CLICKHOUSE_ACTION_REFRESH", "refresh").(string),
 }
 
 func startMetrics(wg *sync.WaitGroup) {
@@ -166,8 +168,6 @@ func Execute() {
 
 			inputs.Start(&wg)
 
-
-
 			wg.Wait()
 		},
 	}
@@ -200,6 +200,8 @@ func Execute() {
 	flags.StringVar(&httpInputOptions.OidcDefaultURL, "http-oidc-default-url", httpInputOptions.OidcDefaultURL, "Http oidc default url")
 	flags.StringVar(&httpInputOptions.OidcScopes, "http-oidc-scopes-url", httpInputOptions.OidcScopes, "Http oidc scopes")
 
+	flags.StringVar(&httpInputOptions.RateSuffixURL, "http-rate-suffix-url", httpInputOptions.RateSuffixURL, "Http rate suffix url")
+
 	flags.BoolVar(&graphqlOptions.GraphqlPretty, "graphql-pretty", graphqlOptions.GraphqlPretty, "Graphql pretty response format")
 	flags.StringVar(&graphqlOptions.GraphqlMode, "graphql-mode", graphqlOptions.GraphqlMode, "Graphql mode: GraphiQL, Playground")
 
@@ -218,6 +220,7 @@ func Execute() {
 	flags.IntVar(&clickhouseProcessorOptions.CacheCleanSeconds, "clickhouse-cache-clean-seconds", clickhouseProcessorOptions.CacheCleanSeconds, "Clickhouse cache clean seconds")
 	flags.IntVar(&clickhouseProcessorOptions.CacheMaxSize, "clickhouse-cache-max-size", clickhouseProcessorOptions.CacheMaxSize, "Clickhouse cache max size in MB")
 	flags.IntVar(&clickhouseProcessorOptions.RefreshInterval, "clickhouse-refresh-interval", clickhouseProcessorOptions.RefreshInterval, "Clickhouse refresh interval in seconds")
+	flags.StringVar(&clickhouseProcessorOptions.ActionRefresh, "clickhouse-action-refresh", clickhouseProcessorOptions.ActionRefresh, "Clickhouse action refresh")
 
 	interceptSyscall()
 
